@@ -1,0 +1,164 @@
+###
+# Users API Requests
+#
+# Note: The API uses Basic Authentication with credentials admin:admin
+# The correct Base64 token is YWRtaW46YWRtaW4=
+
+@hostname = localhost:8080
+@base_url = http://{{hostname}}/api/v1
+@auth_token = Basic ZHVtbXk6ZHVtbXk=
+@wrong_auth_token = Basic ZHVtbXk6ZHVtbXk=
+@user_id = 1
+
+###
+# Test 1: Get all users with correct authentication
+# Expects 200 OK
+GET {{base_url}}/users
+Authorization: Basic YWRtaW46YWRtaW4=
+
+
+
+###
+# Test 2: Create a new user with correct authentication
+# Expects 201 Created
+POST {{base_url}}/users
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "login": "johndoe",
+  "password": "password123"
+}
+
+###
+# Test 3: Get all users with NO authentication header
+# Expects 401 Unauthorized
+GET {{base_url}}/users
+
+###
+# Test 4: Create a new user with NO authentication header
+# Expects 401 Unauthorized
+POST {{base_url}}/users
+Content-Type: application/json
+
+{
+  "name": "Test User No Auth",
+  "login": "testusernoauth",
+  "password": "password123"
+}
+
+###
+# Test 5: Get all users with WRONG credentials
+# Expects 401 Unauthorized
+GET {{base_url}}/users
+Authorization: {{wrong_auth_token}}
+
+###
+# Test 6: Create a new user with WRONG credentials
+# Expects 401 Unauthorized
+POST {{base_url}}/users
+Authorization: {{wrong_auth_token}}
+Content-Type: application/json
+
+{
+  "name": "Test User Wrong Auth",
+  "login": "testuserwrongauth",
+  "password": "password123"
+}
+
+###
+# Test 7: Get user by ID with correct authentication
+# Expects 200 OK
+GET {{base_url}}/users/{{user_id}}
+Authorization: {{auth_token}}
+
+###
+# Test 8: Get user by ID with NO authentication
+# Expects 401 Unauthorized
+GET {{base_url}}/users/{{user_id}}
+
+###
+# Test 9: Get user by ID with WRONG credentials
+# Expects 401 Unauthorized
+GET {{base_url}}/users/{{user_id}}
+Authorization: {{wrong_auth_token}}
+
+###
+# Test 10: Get non-existent user by ID
+# Expects 404 Not Found
+GET {{base_url}}/users/nonexistentid
+Authorization: {{auth_token}}
+
+###
+# Test 11: Update a user with correct authentication
+# Expects 200 OK
+PATCH {{base_url}}/users/{{user_id}}
+Authorization: {{auth_token}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "login": "updatedlogin"
+}
+
+###
+# Test 12: Update a user with NO authentication
+# Expects 401 Unauthorized
+PATCH {{base_url}}/users/{{user_id}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name No Auth"
+}
+
+###
+# Test 13: Update a user with WRONG credentials
+# Expects 401 Unauthorized
+PATCH {{base_url}}/users/{{user_id}}
+Authorization: {{wrong_auth_token}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name Wrong Auth"
+}
+
+###
+# Test 14: Update non-existent user
+# Expects 404 Not Found
+PATCH {{base_url}}/users/nonexistentid
+Authorization: {{auth_token}}
+Content-Type: application/json
+
+{
+  "name": "Non Existent Update"
+}
+
+###
+# Test 15: Delete a user with correct authentication
+# Expects 200 OK
+DELETE {{base_url}}/users/{{user_id}}
+Authorization: {{auth_token}}
+
+###
+# Test 16: Delete a user with NO authentication
+# Expects 401 Unauthorized
+DELETE {{base_url}}/users/{{user_id}}
+
+###
+# Test 17: Delete a user with WRONG credentials
+# Expects 401 Unauthorized
+DELETE {{base_url}}/users/{{user_id}}
+Authorization: {{wrong_auth_token}}
+
+###
+# Test 18: Delete non-existent user
+# Expects 404 Not Found
+DELETE {{base_url}}/users/nonexistentid
+Authorization: {{auth_token}}
+
+###
+# Test 19: Authorize with correct credentials
+# Expects 200 OK
+POST {{base_url}}/auth
+Authorization: {{auth_token}}

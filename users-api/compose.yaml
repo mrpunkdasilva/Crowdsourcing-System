@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: sd3db
+    environment:
+      MYSQL_ROOT_PASSWORD: sd5
+      MYSQL_DATABASE: sd3
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/mysql/initdb:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  db_data:
+  mongodb_data:

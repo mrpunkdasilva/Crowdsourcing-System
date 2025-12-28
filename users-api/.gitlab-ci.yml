@@ -1,0 +1,146 @@
+variables:
+  INSTANCE: 'Writerside/ua'
+  DOCKER_VERSION: '2025.04.8412'
+  # IS_GROUP: 'true'  # Uncomment to build a group
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+stages:
+  - build
+  - test
+  - deploy
+
+build-app:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn clean install -DskipTests # Skip tests here, they will run in dedicated test jobs
+  artifacts:
+    paths:
+      - target/*.jar
+  cache:
+    key:
+      files:
+        - pom.xml
+    paths:
+      - .m2/repository
+
+checkstyle-job:
+  stage: test
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn checkstyle:check
+  cache:
+    key:
+      files:
+        - pom.xml
+    paths:
+      - .m2/repository
+
+
+
+test-mongodb:
+  stage: test
+  image: maven:3.9-eclipse-temurin-17
+  services:
+    - name: mongo:latest
+      alias: mongodb-test
+  variables:
+    SPRING_PROFILES_ACTIVE: "mongodb"
+    SPRING_DATA_MONGODB_URI: "mongodb://mongodb-test:27017/usersapi"
+  script:
+    - mvn test
+  cache:
+    key:
+      files:
+        - pom.xml
+    paths:
+      - .m2/repository
+  dependencies:
+    - build-app
+
+build-docker-image:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+  dependencies:
+    - build-app
+
+build-docs:
+  stage: build
+  image: registry.jetbrains.team/p/writerside/builder/writerside-builder:$DOCKER_VERSION
+  script:
+    - set -e
+    - export DISPLAY=:99
+    - Xvfb :99 &
+    - PROJECT_ID=$(echo $INSTANCE | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]')
+    - ARTIFACT="webHelp${PROJECT_ID}2-all.zip"
+    - /opt/builder/bin/idea.sh helpbuilderinspect -source-dir . -product $INSTANCE --runner gitlab -output-dir public
+    - echo "Testing existence of $ARTIFACT..."
+    - ls -la public
+    - test -e public/$ARTIFACT
+  artifacts:
+    paths:
+      - public/$ARTIFACT
+      - public/report.json
+      - public/$ALGOLIA_ARTIFACT
+    expire_in: 1 week
+
+test-docs:
+  stage: test
+  image: openjdk:18-jdk-alpine
+  before_script:
+    - apk add curl
+  script:
+    - cd public
+    - curl -o wrs-checker.jar -L https://packages.jetbrains.team/maven/p/writerside/maven/com/jetbrains/writerside/writerside-ci-checker/1.0/writerside-ci-checker-1.0.jar
+    - java -jar wrs-checker.jar report.json $INSTANCE
+  dependencies:
+    - build-docs
+
+run-migration:
+  stage: deploy
+  image: maven:3.9-eclipse-temurin-17
+  services:
+    - name: mysql:latest
+      alias: mysql-db
+      variables:
+        MYSQL_ROOT_PASSWORD: sd5
+        MYSQL_DATABASE: sd3
+    - name: mongo:latest
+      alias: mongo-db
+  variables:
+    SPRING_PROFILES_ACTIVE: "migration"
+    SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-db:3306/sd3"
+    SPRING_DATASOURCE_USERNAME: "root"
+    SPRING_DATASOURCE_PASSWORD: "sd5"
+    SPRING_DATA_MONGODB_URI: "mongodb://mongo-db:27017/usersapi"
+  script:
+    - java -jar target/*.jar
+  dependencies:
+    - build-app
+  when: manual
+
+pages:
+  stage: deploy
+  image: ubuntu:latest
+  before_script:
+    - apt-get update -y && apt-get install unzip -y
+
+  script:
+    - PROJECT_ID=$(echo $INSTANCE | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]')
+    - ARTIFACT="webHelp${PROJECT_ID}2-all.zip"
+    - echo "Using artifact $ARTIFACT"
+    - cd public
+    - unzip -O UTF-8 $ARTIFACT
+  dependencies:
+    - build-docs
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week

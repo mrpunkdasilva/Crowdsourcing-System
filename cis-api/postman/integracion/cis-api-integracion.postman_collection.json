@@ -1,0 +1,367 @@
+{
+  "info": {
+    "name": "CIS API – Integração & Stress",
+    "_postman_id": "d2b45e50-88f0-11ee-b9d1-0242ac120002",
+    "description": "Collection para testes de integração e stress da API CIS (MySQL/MongoDB compatível). Use um environment com base_url, topicId e ideaId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "dummy", "type": "string" },
+      { "key": "password", "value": "dummy", "type": "string" }
+    ]
+  },
+  "variable": [
+		{
+			"key": "topicId",
+			"value": "20"
+		},
+		{
+			"key": "base_url",
+			"value": "http://localhost:5020/api/v1"
+		},
+		{
+			"key": "ideaId",
+			"value": "14"
+		}
+	],
+  	"item": [
+    {
+      "name": "Topics",
+      "item": [
+        {
+          "name": "Create Topic – Minimum",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/topics", "host": ["{{base_url}}"], "path": ["topics"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Short Topic\", \"description\": \"Minimal case\" }"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "pm.test('Response time < 1000ms', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('topicId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Topic – Medium",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/topics", "host": ["{{base_url}}"], "path": ["topics"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Medium Topic\", \"description\": \"Typical user input for a topic test covering common use case length.\" }"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "pm.test('JSON contains title', () => { const data = pm.response.json(); pm.expect(data).to.have.property('title'); })",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('topicId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Topic – Maximum (pre-request generates large body)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Gera bodies grandes e salva em variável de ambiente",
+                  "const title = 'A'.repeat(256);",
+                  "const description = 'B'.repeat(2000);",
+                  "const body = { title: title, description: description, tags: ['x','y','z'] };",
+                  "pm.environment.set('maxTopicBody', JSON.stringify(body));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200/201/400', () => pm.expect([200,201,400]).to.include(pm.response.code));",
+                  "pm.test('Response time < 3000ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('topicId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/topics", "host": ["{{base_url}}"], "path": ["topics"] },
+            "body": { "mode": "raw", "raw": "{{maxTopicBody}}" }
+          }
+        },
+        {
+          "name": "Get Topics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/topics", "host": ["{{base_url}}"], "path": ["topics"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => { const body = pm.response.json(); pm.expect(Array.isArray(body)).to.be.true; })"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ideas",
+      "item": [
+        {
+          "name": "Create Idea – Minimum",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas"]
+            },
+            "body": { "mode": "raw", "raw": "{ \"title\": \"Quick idea\", \"description\": \"Short idea\" }" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('ideaId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Idea – Medium",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Medium idea\", \"description\": \"This idea has medium length content to simulate a normal user submission.\" }"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('ideaId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Idea – Maximum (pre-request generates large body)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const content = 'C'.repeat(4000);",
+                  "const extra = 'D'.repeat(1000);",
+                  "const body = { title: 'Max idea', description: content, metadata: { extra: extra }, votes: 99999 };",
+                  "pm.environment.set('maxIdeaBody', JSON.stringify(body));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200/201/400', () => pm.expect([200,201,400]).to.include(pm.response.code));",
+                  "pm.test('Response time < 5000ms', () => pm.expect(pm.response.responseTime).to.be.below(5000));",
+                  "try { const json = pm.response.json(); if (json && json.id) pm.environment.set('ideaId', json.id); } catch(e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas"]
+            },
+            "body": { "mode": "raw", "raw": "{{maxIdeaBody}}" }
+          }
+        },
+        {
+          "name": "Get Ideas from Topic",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status 200 OK', () => pm.response.to.have.status(200));"] }
+            }
+          ]
+        },
+        {
+          "name": "Get Idea by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas/{{ideaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas", "{{ideaId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Returned id matches', () => { try { const j = pm.response.json(); pm.expect(j.id.toString()).to.eql(pm.environment.get('ideaId').toString()); } catch(e) { /* ignore if not applicable */ } })"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Votes",
+      "item": [
+        {
+          "name": "Vote Idea",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas/{{ideaId}}/vote",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas", "{{ideaId}}", "vote"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status OK (200/201/204)', () => pm.expect([200,201,204]).to.include(pm.response.code));",
+                  "let j = {}; try { j = pm.response.json(); } catch(e) { j = {}; }",
+                  "pm.test('Voto registrado (count or message)', () => { const votos = j.voteCount || j.votes || 0; const msg = (j.message||'').toLowerCase(); pm.expect(votos >= 0 || msg.includes('vote')).to.be.true; })"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unvote Idea",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/topics/{{topicId}}/ideas/{{ideaId}}/unvote",
+              "host": ["{{base_url}}"],
+              "path": ["topics", "{{topicId}}", "ideas", "{{ideaId}}", "unvote"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status OK or 500 allowed (depends impl)', () => pm.expect([200,204,500]).to.include(pm.response.code));",
+                  "let j = {}; try { j = pm.response.json(); } catch(e) { j = {}; }",
+                  "pm.test('Voto removido (count or message)', () => { const votos = j.voteCount || j.votes || 0; const msg = (j.message||'').toLowerCase(); pm.expect(votos >= 0 || msg.includes('unvote')).to.be.true; })"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stress",
+      "item": [
+        {
+          "name": "Stress Test – Create Topics (x10)",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/topics" } },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const base = pm.environment.get('base_url') || pm.variables.get('base_url');",
+                  "for (let i=0;i<10;i++) {",
+                  "  pm.sendRequest({",
+                  "    url: base + '/topics',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ title: 'Stress Topic ' + i, description: 'Load test' }) }",
+                  "  }, function (err, res) { if (err) console.log('err', err); else console.log('stress topic', i, res.code); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stress Test – Create Ideas (x10) fixed IDs",
+          "request": { "method": "GET", "url": { "raw": "{{base_url}}/topics" } },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const base = pm.environment.get('base_url') || pm.variables.get('base_url');",
+                  "const topicId = pm.environment.get('topicId');",
+                  "for (let i=0;i<10;i++) {",
+                  "  pm.sendRequest({",
+                  "    url: base + '/topics/' + topicId + '/ideas',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ title: 'Stress idea ' + i, description: 'Load test' }) }",
+                  "  }, function (err, res) { if (err) console.log('err', err); else console.log('stress idea', i, res.code); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+
+
+### Create a new idea for a topic
+POST http://{{host}}:{{port}}/api/v1/topics/3/ideas
+Content-Type: application/json
+Authorization: Basic  ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "My new idea from http file",
+  "description": "This is a great idea."
+}
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        const idea = response.body;
+        client.assert(idea.hasOwnProperty("id"), "Response body does not have an id property");
+        client.assert(idea.title === "My new idea from http file", "Title is not correct");
+    });
+%}
+
+###
+
+### Vote for Idea by ID
+POST http://{{host}}:{{port}}/api/v1/topics/3/ideas/1/vote
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+
+### Remove vote for Idea by
+POST http://{{host}}:{{port}}/api/v1/topics/1/ideas/10/unvote
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+
+### Get an Idea by ID
+# @name getIdeaById
+GET http://{{host}}:{{port}}/api/v1/topics/1/ideas/3
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        const idea = response.body;
+        client.assert(idea.hasOwnProperty("id"), "Response body does not have an id property");
+        client.assert(idea.topicId === 9999, "Topic ID is not correct");
+        client.assert(idea.id === 99991, "Idea ID is not correct");
+    });
+%}
+
+###
+
+### Get an Idea by ID (Error: Non-existent Idea ID)
+# @name getIdeaByIdNonExistentIdea
+GET http://{{host}}:{{port}}/api/v1/topics/9999/ideas/99999
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request should return 404 Not Found", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+
+###
+
+### Create an Idea for Chained Topic
+# @name createIdeaForChainedTopic
+POST http://{{host}}:{{port}}/api/v1/topics/{{chainedTopicId}}/ideas
+Content-Type: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "Chained Idea",
+  "description": "This idea is created as part of a chained test."
+}
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        const idea = response.body;
+        client.assert(idea.hasOwnProperty("id"), "Response body does not have an id property");
+        client.global.set("chainedIdeaId", idea.id);
+    });
+%}
+
+###
+
+### Get Chained Idea by ID
+GET http://{{host}}:{{port}}/api/v1/topics/1/ideas/106
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        const idea = response.body;
+        client.assert(idea.hasOwnProperty("id"), "Response body does not have an id property");
+        client.assert(idea.topicId === client.global.get("chainedTopicId"), "Topic ID is not correct");
+        client.assert(idea.id === client.global.get("chainedIdeaId"), "Idea ID is not correct");
+    });
+%}
+
+### Get an Idea by ID (Error: Non-existent Topic ID)
+# @name getIdeaByIdNonExistentTopic
+GET http://{{host}}:{{port}}/api/v1/topics/88888/ideas/99991
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request should return 404 Not Found", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+
+
+###
+
+### Vote for Chained Idea by ID
+# @name voteForChainedIdea
+POST http://{{host}}:{{port}}/api/v1/topics/{{chainedTopicId}}/ideas/{{chainedIdeaId}}/vote
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+
+### Remove vote for Chained Idea by ID
+# @name unvoteForChainedIdea
+POST http://{{host}}:{{port}}/api/v1/topics/{{chainedTopicId}}/ideas/{{chainedIdeaId}}/unvote
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}

@@ -1,0 +1,109 @@
+variables:
+  INSTANCE: 'Writerside/dca'
+  DOCKER_VERSION: '2025.04.8412'
+  # IS_GROUP: 'true'  # Uncomment to build a group
+
+stages:
+  - build
+  - test
+  - migrate
+  - deploy
+
+build:
+  stage: build
+  image: registry.jetbrains.team/p/writerside/builder/writerside-builder:$DOCKER_VERSION
+  script:
+    - set -e
+    - export DISPLAY=:99
+    - Xvfb :99 &
+    - PROJECT_ID=$(echo $INSTANCE | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]')
+    - ARTIFACT="webHelp${PROJECT_ID}2-all.zip"
+    - /opt/builder/bin/idea.sh helpbuilderinspect -source-dir . -product $INSTANCE --runner gitlab -output-dir public
+    - echo "Testing existence of $ARTIFACT..."
+    - ls -la public
+    - test -e public/$ARTIFACT
+  artifacts:
+    paths:
+      - public/$ARTIFACT
+      - public/report.json
+      - public/$ALGOLIA_ARTIFACT
+    expire_in: 1 week
+
+pages:
+  stage: deploy
+  image: ubuntu:latest
+  before_script:
+    - apt-get update -y && apt-get install unzip -y
+
+  script:
+    - PROJECT_ID=$(echo $INSTANCE | cut -d'/' -f2 | tr '[:lower:]' '[:upper:]')
+    - ARTIFACT="webHelp${PROJECT_ID}2-all.zip"
+    - echo "Using artifact $ARTIFACT"
+    - cd public
+    - unzip -O UTF-8 $ARTIFACT
+  dependencies:
+    - build
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 week
+
+build_backend:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - dotnet restore backend-service/CisApi.sln
+    - dotnet build backend-service/CisApi.sln --configuration Release
+  artifacts:
+    paths:
+      - backend-service/Server/bin/Release/net6.0/publish/
+    expire_in: 1 week
+
+test_backend:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - dotnet test backend-service/CisApi.sln --configuration Release
+  dependencies:
+    - build_backend
+
+docker_build_backend:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t registry.gitlab.com/mrpunkdasilva/capstone-ds3/cis-api/backend-service/server:$CI_COMMIT_SHORT_SHA -f backend-service/Server/Dockerfile .
+  
+  dependencies:
+    - test_backend
+
+
+migrate_to_mongodb:
+  stage: migrate
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  services:
+    - mysql:latest
+    - name: mongo:latest
+      alias: mongodb # Explicitamente define o alias # Adiciona o serviço MongoDB ao job # Adiciona o serviço MySQL ao job
+  variables:
+    MYSQL_ROOT_PASSWORD: sd5 # Variável de ambiente para o serviço MySQL
+    MYSQL_DATABASE: sd3 # Variável de ambiente para o serviço MySQL
+  script:
+    - cd backend-service/CisApi.DataMigration/
+    - echo "Applying EF Migrations..."
+    - dotnet ef database update
+    - echo "Running MongoDB migration script..."
+    - dotnet run
+  before_script:
+    - apt-get update -y && apt-get install -y default-mysql-client # Instala o cliente MySQL
+    - echo "Waiting for MySQL to be ready..."
+    - for i in $(seq 1 30); do mysqladmin ping -h mysql --silent && break || sleep 1; done
+    - echo "MySQL is ready!"
+    - echo "Waiting for MongoDB to be ready..."
+    - apt-get install -y curl # Instala o curl para verificar o MongoDB
+    - for i in $(seq 1 30); do curl --fail --silent http://mongodb:27017/admin --output /dev/null && break || sleep 1; done
+    - echo "MongoDB is ready!"
+    - dotnet tool install --global dotnet-ef
+    - export PATH="$PATH:/root/.dotnet/tools"
+  when: manual

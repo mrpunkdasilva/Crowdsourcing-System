@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="ua"
+                 name="Users API"
+                 start-page="starter-topic.md">
+
+    <toc-element topic="starter-topic.md"/>
+    <toc-element topic="c4-model.md"/>
+    <toc-element topic="local-development-setup.md"/>
+    <toc-element topic="migration-process.md"/>
+</instance-profile>

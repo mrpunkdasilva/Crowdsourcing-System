@@ -1,0 +1,692 @@
+openapi: 3.1.0
+
+# --- API Information ---
+info:
+  title: CIS API
+  description: A simple and clean API to manage Topics and Ideas. An idea can be created, voted, and unvoted.
+  version: 1.0.0
+
+# --- Servers ---
+servers:
+  - url: http://localhost:5020
+    description: Development server
+
+# --- Tags ---
+tags:
+  - name: Topic
+    description: Operations about topics
+  - name: Idea
+    description: Operations about ideas
+
+# --- Paths ---
+paths:
+  # --- Topics ---
+  /api/v1/topics:
+    post:
+      tags:
+        - Topic
+      summary: "Creates a new topic"
+      description: "Allows a user to create a new topic by providing a title and a description."
+      operationId: createTopic
+      security:
+        - basicAuth: []
+      
+      requestBody:
+        description: "Data required to create a new topic."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTopicRequest'
+            example:
+              title: "my topic 0001"
+              description: "my topic 0001"
+
+      responses:
+        '201':
+          description: "Topic created successfully."
+          content:
+            application/json:
+                        schema:
+                          $ref: '#/components/schemas/TopicResponseDto'
+                        example:
+                          id: 9999
+                          title: "my topic 0001"
+                          description: "my topic 0001"
+                          createdAt: "2025-10-08T10:00:00Z"
+                          createdBy:
+                            id: "user-123"
+                            login: "testuser"                
+        '400':
+          description: "Invalid request. Check the submitted data."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "The 'title' field is required."
+        '401':
+          $ref: '#/components/responses/UnauthorizedTopic'
+        '403':
+          $ref: '#/components/responses/ForbiddenTopic'
+
+    get:
+      tags:
+        - Topic
+      summary: Get all topics
+      description: Returns a list of topics owned by the current user.
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessTopicList'
+        '400':
+          $ref: '#/components/responses/BadRequestTopic'
+        '401':
+          $ref: '#/components/responses/UnauthorizedTopic'
+        '403':
+          $ref: '#/components/responses/ForbiddenTopic'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/topics/{id}:
+    get:
+      tags:
+        - Topic
+      summary: Get a single topic by ID
+      description: Returns a single topic owned by the current user.
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessTopic'
+        '400':
+          $ref: '#/components/responses/BadRequestTopic'
+        '401':
+          $ref: '#/components/responses/UnauthorizedTopic'
+        '403':
+          $ref: '#/components/responses/ForbiddenTopic'
+        '404':
+          $ref: '#/components/responses/NotFoundTopic'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # --- Ideas ---
+  /api/v1/topics/{id}/ideas:
+    post:
+      tags:
+        - Idea
+      summary: Create a new idea for a topic
+      description: Creates a new idea associated with a specific topic ID.
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+      requestBody:
+        description: The idea object to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdeaRequest'
+            example:
+              title: "my new idea"
+              description: "description for my new idea"
+      responses:
+        '201':
+          description: Idea created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdeaResponse'
+              example:
+                id: 99992
+                topicId: 9999
+                title: "my new idea"
+                description: "description for my new idea"
+                ownedBy: "owner@domain.com"
+                voteCount: 0
+                votedBy: []
+        '400':
+          $ref: '#/components/responses/BadRequestIdea'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+        - Idea
+      summary: Get ideas by topic ID
+      description: Returns a list of ideas associated with the given topic ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the topic
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of ideas (empty if none are found)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 88881
+                    topicId:
+                      type: integer
+                      example: 8888
+                    title:
+                      type: string
+                      example: "my idea 0002"
+                    description:
+                      type: string
+                      example: "my idea 0002"
+                    ownedBy:
+                      type: string
+                      example: "owner@domain.com"
+                    voteCount:
+                      type: integer
+                      example: 2
+                    votedBy:
+                      type: array
+                      items:
+                        type: string
+                      example: ["john.doe@domain.com", "joe.doe@domain.com"]
+              examples:
+                nonEmptyArray:
+                  summary: Example with ideas found
+                  value:
+                    - id: 88881
+                      topicId: 8888
+                      title: "my idea 0002"
+                      description: "my idea 0002"
+                      ownedBy: "owner@domain.com"
+                      voteCount: 2
+                      votedBy: ["john.doe@domain.com", "joe.doe@domain.com"]
+                    - id: 99991
+                      topicId: 9999
+                      title: "my idea 0001"
+                      description: "my idea 0001"
+                      ownedBy: "owner@domain.com"
+                      voteCount: 0
+                      votedBy: []
+                emptyArray:
+                  summary: Example with no ideas
+                  value: []
+
+  /api/v1/topics/{id}/ideas/{ideaId}/vote:
+    post:
+      tags:
+        - Idea
+      summary: Vote for Idea by ID
+      description: Add a vote to the specified idea.
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+        - $ref: '#/components/parameters/ideaId'
+      requestBody:
+        description: empty
+        required: true
+        content:
+          application/json:
+            example: {}
+      responses:
+        '200':
+          $ref: '#/components/responses/IdeaVoteResponseSuccess'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /api/v1/topics/{id}/ideas/{ideaId}/unvote:
+    post:
+      tags:
+        - Idea
+      summary: Remove vote for Idea by ID
+      description: Remove a vote to the specified idea.
+
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+        - $ref: '#/components/parameters/ideaId'
+      requestBody:
+        description: empty
+        required: true
+        content:
+          application/json:
+            example: {}
+      responses:
+        '200':
+          $ref: '#/components/responses/IdeaUnvoteResponseSuccess'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+# --- Components ---
+  /api/v1/topics/{id}/ideas/{ideaId}:
+    get:
+      tags:
+        - Idea
+      summary: Get an Idea by ID
+      description: Retrieves a single idea by its unique ID within a topic.
+      parameters:
+        - $ref: '#/components/parameters/topicId'
+        - $ref: '#/components/parameters/ideaId'
+     
+      responses:
+        '200':
+          $ref: '#/components/responses/IdeaResponseSuccess'
+
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  # --- Schemas ---
+  schemas:
+    # --- Idea Schemas ---
+    IdeaRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: "The title of the idea. Cannot be null or an empty string."
+          minLength: 1
+        description:
+          type: string
+          description: "An optional description for the idea. If provided, cannot be an empty string."
+          minLength: 1
+
+    IdeaResponse:
+      type: object
+      required:
+        - id
+        - topicId
+        - title
+        - description
+        - ownedBy
+        - voteCount
+        - votedBy
+      properties:
+        id:
+          type: integer
+          example: 88881
+        topicId:
+          type: integer
+          example: 8888
+        title:
+          type: string
+          example: "my idea 0002"
+        description:
+          type: string
+          example: "my idea 0002"
+        ownedBy:
+          type: string
+          format: email
+          example: "owner@domain.com"
+        voteCount:
+          type: integer
+          example: 2
+        votedBy:
+          type: array
+          items:
+            type: string
+            format: email
+      example:
+        id: 88881
+        topicId: 8888
+        title: "my idea 0002"
+        description: "my idea 0002"
+        ownedBy: "owner@domain.com"
+        voteCount: 2
+        votedBy:
+          - "john.doe@domain.com"
+          - "joe.doe@domain.com"
+            
+    NewIdea:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: "The title of the idea - required, cannot be empty"
+        description:
+          type: string
+          description: "The description of the idea (optional, cannot be empty if provided)"
+          minLength: 1
+
+    Idea:
+      type: object
+      properties:
+        id:
+          type: integer
+        topicId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        ownedBy:
+          type: string
+          format: email
+        voteCount:
+          type: integer
+        votedBy:
+          type: array
+          items:
+            type: string
+            format: email
+
+    # --- Topic Schemas ---
+    TopicResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          $ref: '#/components/schemas/UserDto'
+      example:
+        id: 9999
+        title: "my topic 0001"
+        description: "my topic 0001"
+        createdAt: "2025-10-08T10:00:00Z"
+        createdBy:
+          id: "user-123"
+          login: "testuser"
+        
+    CreateTopicRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: "The topic's title."
+          minLength: 1
+        description:
+          type: string
+          description: "A brief description of the topic's purpose."
+          minLength: 1
+      required:
+        - title
+
+    # --- Error Schemas ---
+    Error:
+      type: object
+      required:
+        - code
+        - detail
+        - title
+      properties:
+        status:
+          type: integer
+          description: The HTTP status code.
+        code:
+          type: string
+          description: A machine-readable error code.
+        title:
+          type: string
+          description: A short, human-readable summary of the problem.
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+  # --- Responses ---
+  responses:
+    # --- Success Responses ---
+    IdeaResponseSuccess:
+      description: Idea successfully retrieved.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdeaResponse'
+          example:
+            id: 88881
+            topicId: 8888
+            title: "my idea 0002"
+            description: "my idea 0002"
+            ownedBy: "owner@domain.com"
+            voteCount: 2
+            votedBy:
+              - "john.doe@domain.com"
+              - "joe.doe@domain.com"
+
+    SuccessTopic:
+      description: A single topic
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TopicResponseDto'
+
+    BadRequestIdea:
+      description: Invalid input for idea creation. The request body is malformed or fails validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 400
+            code: "VALIDATION_ERROR"
+            title: "Invalid Request Body"
+            detail: "The 'title' field is required and cannot be empty."
+
+    IdeaUnvoteResponseSuccess:
+      description: Successful removal of the registered vote.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdeaResponse'
+          example:
+            id: 99991
+            topicId: 9999
+            title: "my idea 0001"
+            description: "my idea 0001"
+            ownedBy: "owner@domain.com"
+            voteCount: 0
+            votedBy: []
+
+    SuccessIdeaList:
+      description: A list of ideas for the topic was successfully retrieved.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdeaResponse'
+          examples:
+            ideasFound:
+              summary: List with one or more ideas
+              value:
+                - id: 88881
+                  topicId: 8888
+                  title: "my idea 0002"
+                  description: "my idea 0002"
+                  ownedBy: "owner@domain.com"
+                  voteCount: 2
+                  votedBy: ["john.doe@domain.com", "joe.doe@domain.com"]
+                - id: 99991
+                  topicId: 9999
+                  title: "my idea 0001"
+                  description: "my idea 0001"
+                  ownedBy: "owner@domain.com"
+                  voteCount: 0
+                  votedBy: []
+            noIdeasFound:
+              summary: List for a topic with zero ideas
+              value: []
+
+    IdeaVoteResponseSuccess:
+      description: Vote successfully registered for the idea.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdeaResponse'
+          example:
+            id: 99991
+            topicId: 9999
+            title: "my idea 0001"
+            description: "my idea 0001"
+            ownedBy: "owner@domain.com"
+            voteCount: 1
+            votedBy:
+              - "john.doe@domain.com"
+
+    SuccessTopicList:
+      description: A list of topics
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TopicResponseDto'
+          example:
+            - id: 8888
+              title: "my topic 0001"
+              description: "my topic 0001"
+              createdAt: "2025-10-08T10:00:00Z"
+              createdBy:
+                id: "user-123"
+                login: "testuser"
+            - id: 9999
+              title: "my topic 0002"
+              description: "my topic 0002"
+              createdAt: "2025-10-08T10:05:00Z"
+              createdBy:
+                id: "user-124"
+                login: "anotheruser"
+            - id: 1000
+              title: "my topic 0003"
+              description: "my topic 0003"
+              createdAt: "2025-10-08T10:10:00Z"
+              createdBy:
+                id: "user-125"
+                login: "thirduser"
+
+    NotFoundTopic:
+      description: The specified topic was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 404
+            code: "TOPIC_NOT_FOUND"
+            title: "Topic not found"
+            detail: "The topic with the specified ID was not found."
+
+    BadRequestTopic:
+      description: The request was malformed or the topic ID is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 400
+            code: "INVALID_TOPIC_ID"
+            title: "Invalid topic ID"
+            detail: "The provided topic ID is not valid."
+
+    UnauthorizedTopic:
+      description: Authentication is required to access topics.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 401
+            code: "AUTHENTICATION_REQUIRED"
+            title: "Authentication required"
+            detail: "Authentication is required to access topics."
+
+    ForbiddenTopic:
+      description: The client is not authorized to access the specified topic.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 403
+            code: "TOPIC_ACCESS_FORBIDDEN"
+            title: "Topic access forbidden"
+            detail: "You are not authorized to access this topic."
+
+    NotFoundError:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 404
+            code: "NOT_FOUND"
+            title: "Resource not found"
+            detail: "The requested resource was not found."
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 500
+            code: "INTERNAL_SERVER_ERROR"
+            title: "Internal server error"
+            detail: "An unexpected error occurred on the server."
+
+    InternalServerErrorTopic:
+      description: An unexpected error occurred on the server.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            status: 500
+            code: "INTERNAL_SERVER_ERROR"
+            title: "Internal server error"
+            detail: "An unexpected error occurred on the server."
+
+  # --- Parameters ---
+  parameters:
+    ideaId:
+      name: ideaId
+      in: path
+      required: true
+      description: Unique idea identifier.
+      schema:
+        type: integer
+        format: int64
+      examples:
+        example1:
+          value: 88881
+        example2:
+          value: 99991
+          
+    topicId:
+      name: id
+      in: path
+      required: true
+      description: Unique topic identifier.
+      schema:
+        type: integer
+        format: int64

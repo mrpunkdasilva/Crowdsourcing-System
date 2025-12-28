@@ -1,0 +1,142 @@
+
+##### Get all topics
+GET http://{{host}}:{{port}}/api/v1/topics
+Accept: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+> {% 
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        const topics = response.body;
+        client.assert(Array.isArray(topics), "Response body is not an array");
+    });
+%}
+
+
+##### Create a new topic
+### @name createTopic
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json  
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "Topic for Chained Test",
+  "description": "This topic is created for testing chained requests."
+}
+
+
+
+
+##### Create a new topic (Forbidden - non-existent user)
+##### @name createTopicForbidden
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+Authorization: Basic ZHVtbXkxOmR1bW15MQ==
+
+{
+  "title": "Forbidden Topic",
+  "description": "This topic should not be created."
+}
+
+> {% 
+    client.test("Request should return 403 Forbidden", function() {
+        client.assert(response.status === 403, "Response status is not 403");
+    });
+%}
+
+###
+
+##### Create a new topic (Unauthorized - no auth header)
+### @name createTopicUnauthorized
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+
+{
+  "title": "Unauthorized Topic",
+  "description": "This topic should not be created."
+}
+
+> {% 
+    client.test("Request should return 401 Unauthorized", function() {
+        client.assert(response.status === 401, "Response status is not 401");
+    });
+%}
+
+
+
+##### Create a new topic (Bad Request - Invalid JSON)
+### @name createTopicBadRequestInvalidJson
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "Invalid JSON Topic",
+  "description": "This topic should not be created.",
+  "extraField": "invalid"
+}
+
+> {% 
+    client.test("Request should return 400 Bad Request for invalid JSON", function() {
+        client.assert(response.status === 400, "Response status is not 400");
+    });
+%}
+
+
+##### Create a new topic (Bad Request - Missing Title)
+### @name createTopicBadRequestMissingTitle
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "description": "This topic should not be created due to missing title."
+}
+
+> {% 
+    client.test("Request should return 400 Bad Request for missing title", function() {
+        client.assert(response.status === 400, "Response status is not 400");
+    });
+%}
+
+###
+
+##### Create a new topic (Bad Request - Empty Title)
+### @name createTopicBadRequestEmptyTitle
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "",
+  "description": "This topic should not be created due to empty title."
+}
+
+> {% 
+    client.test("Request should return 400 Bad Request for empty title", function() {
+        client.assert(response.status === 400, "Response status is not 400");
+    });
+%}
+
+###
+
+##### Create a new topic (400 - Empty Description)
+### @name createTopicEmptyDescription
+POST http://{{host}}:{{port}}/api/v1/topics
+Content-Type: application/json
+Authorization: Basic ZHVtbXk6ZHVtbXk=
+
+{
+  "title": "Topic with Empty Description",
+  "description": "11"
+}
+
+> {% 
+    client.test("Request should return 201 Created for empty description", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        const topic = response.body;
+        client.assert(topic.hasOwnProperty("id"), "Response body does not have an id property");
+        client.assert(topic.title === "Topic with Empty Description", "Title is not correct");
+        client.assert(topic.description === "", "Description is not empty");
+    });
+%}

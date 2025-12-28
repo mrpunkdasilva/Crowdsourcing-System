@@ -1,0 +1,24 @@
+import topics.http
+import ideas.http
+import users.http
+
+### 1. Create a new topic and save its ID
+run #createTopic
+
+### 2. Create a new idea for the topic and save its ID
+run #createIdeaForChainedTopic
+
+### 3. Get the idea by ID to verify it was created
+run #getChainedIdeaById
+
+### 4. Vote for the idea
+run #voteForChainedIdea
+
+### 5. Get the idea by ID to verify the vote count (manual check)
+run #getChainedIdeaById
+
+### 6. Unvote the idea
+run #unvoteForChainedIdea
+
+### 7. Get the idea by ID to verify the vote count (manual check)
+run #getChainedIdeaById

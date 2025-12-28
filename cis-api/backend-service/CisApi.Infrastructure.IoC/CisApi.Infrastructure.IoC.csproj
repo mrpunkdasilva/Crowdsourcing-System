@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\CisApi.Infrastructure.MySQL\CisApi.Infrastructure.MySQL.csproj" />
+    <ProjectReference Include="..\CisApi.Infrastructure.MongoDb\CisApi.Infrastructure.MongoDb.csproj" />
+    <ProjectReference Include="..\CisApi.Core.Application\CisApi.Core.Application.csproj" />
+    <ProjectReference Include="..\CisApi.Presentation\CisApi.Presentation.csproj" />
+    <ProjectReference Include="..\CisApi.Infrastructure.UsersApi\CisApi.Infrastructure.UsersApi.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

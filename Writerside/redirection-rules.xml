@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rules SYSTEM "https://resources.jetbrains.com/writerside/1.0/redirection-rules.dtd">
+<rules>
+    <!-- format is as follows
+    <rule id="<unique id>">
+        <accepts>page.html</accepts>
+    </rule>
+    -->
+    <rule id="3ae35c6a">
+        <description>Created after removal of "Schemas" from Docs CIS API</description>
+        <accepts>Schemas.html</accepts>
+    </rule>
+    <rule id="63329902">
+        <description>Created after removal of "Error" from Docs CIS API</description>
+        <accepts>Error.html</accepts>
+    </rule>
+    <rule id="f159155">
+        <description>Created after removal of "Topic" from Docs CIS API</description>
+        <accepts>Topic.html</accepts>
+    </rule>
+    <rule id="491e6f62">
+        <description>Created after removal of "Get a single topic by ID" from Docs CIS API</description>
+        <accepts>Get_a_single_topic_by_ID.html</accepts>
+    </rule>
+    <rule id="15234a12">
+        <description>Created after removal of "Get all topics" from Docs CIS API</description>
+        <accepts>Get_all_topics.html</accepts>
+    </rule>
+    <rule id="7e7917b6">
+        <description>Created after removal of "API Reference" from Docs CIS API</description>
+        <accepts>API_Reference.html</accepts>
+    </rule>
+    <rule id="35524991">
+        <description>Created after removal of "Schemas" from Docs CIS API</description>
+        <accepts>Schemas2.html</accepts>
+    </rule>
+    <rule id="2d008aa1">
+        <description>Created after removal of "ErrorResponse" from Docs CIS API</description>
+        <accepts>ErrorResponse.html</accepts>
+    </rule>
+    <rule id="281c302f">
+        <description>Created after removal of "Error" from Docs CIS API</description>
+        <accepts>Error2.html</accepts>
+    </rule>
+    <rule id="1be8f05b">
+        <description>Created after removal of "CreateTopicRequest" from Docs CIS API</description>
+        <accepts>CreateTopicRequest.html</accepts>
+    </rule>
+    <rule id="402c68f7">
+        <description>Created after removal of "Topic" from Docs CIS API</description>
+        <accepts>Topic2.html</accepts>
+    </rule>
+    <rule id="74839cb0">
+        <description>Created after removal of "Idea" from Docs CIS API</description>
+        <accepts>Idea.html</accepts>
+    </rule>
+    <rule id="22e00068">
+        <description>Created after removal of "NewIdea" from Docs CIS API</description>
+        <accepts>NewIdea.html</accepts>
+    </rule>
+    <rule id="807713">
+        <description>Created after removal of "IdeaResponse" from Docs CIS API</description>
+        <accepts>IdeaResponse.html</accepts>
+    </rule>
+    <rule id="6f855b99">
+        <description>Created after removal of "IdeaRequest" from Docs CIS API</description>
+        <accepts>IdeaRequest.html</accepts>
+    </rule>
+    <rule id="1b215daf">
+        <description>Created after removal of "Remove vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Remove_vote_for_Idea_by_ID.html</accepts>
+    </rule>
+    <rule id="7d0b98ff">
+        <description>Created after removal of "Vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Vote_for_Idea_by_ID.html</accepts>
+    </rule>
+    <rule id="697e9ef4">
+        <description>Created after removal of "Create a new idea for a topic" from Docs CIS API</description>
+        <accepts>Create_a_new_idea_for_a_topic.html</accepts>
+    </rule>
+    <rule id="3254e042">
+        <description>Created after removal of "Get a single topic by ID" from Docs CIS API</description>
+        <accepts>Get_a_single_topic_by_ID2.html</accepts>
+    </rule>
+    <rule id="3f90ec22">
+        <description>Created after removal of "Get all topics" from Docs CIS API</description>
+        <accepts>Get_all_topics2.html</accepts>
+    </rule>
+    <rule id="753978f2">
+        <description>Created after removal of "ErrorResponse" from Docs CIS API</description>
+        <accepts>ErrorResponse.html</accepts>
+    </rule>
+    <rule id="57b546dd">
+        <description>Created after removal of "Error" from Docs CIS API</description>
+        <accepts>Error2.html</accepts>
+    </rule>
+    <rule id="2dd69d12">
+        <description>Created after removal of "CreateTopicRequest" from Docs CIS API</description>
+        <accepts>CreateTopicRequest.html</accepts>
+    </rule>
+    <rule id="2a5a4e3a">
+        <description>Created after removal of "Topic" from Docs CIS API</description>
+        <accepts>Topic2.html</accepts>
+    </rule>
+    <rule id="152fcea8">
+        <description>Created after removal of "Idea" from Docs CIS API</description>
+        <accepts>Idea.html</accepts>
+    </rule>
+    <rule id="696d36c5">
+        <description>Created after removal of "NewIdea" from Docs CIS API</description>
+        <accepts>NewIdea.html</accepts>
+    </rule>
+    <rule id="c3336f2">
+        <description>Created after removal of "IdeaResponse" from Docs CIS API</description>
+        <accepts>IdeaResponse.html</accepts>
+    </rule>
+    <rule id="7a9a881b">
+        <description>Created after removal of "IdeaRequest" from Docs CIS API</description>
+        <accepts>IdeaRequest.html</accepts>
+    </rule>
+    <rule id="65f9309a">
+        <description>Created after removal of "API Reference" from Docs CIS API</description>
+        <accepts>API_Reference2.html</accepts>
+    </rule>
+    <rule id="274b97e5">
+        <description>Created after removal of "Schemas" from Docs CIS API</description>
+        <accepts>Schemas2.html</accepts>
+    </rule>
+    <rule id="5376b966">
+        <description>Created after removal of "Remove vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Remove_vote_for_Idea_by_ID.html</accepts>
+    </rule>
+    <rule id="fc5e605">
+        <description>Created after removal of "Vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Vote_for_Idea_by_ID.html</accepts>
+    </rule>
+    <rule id="58eaf85b">
+        <description>Created after removal of "Create a new idea for a topic" from Docs CIS API</description>
+        <accepts>Create_a_new_idea_for_a_topic.html</accepts>
+    </rule>
+    <rule id="1d9a0a84">
+        <description>Created after removal of "Get a single topic by ID" from Docs CIS API</description>
+        <accepts>Get_a_single_topic_by_ID2.html</accepts>
+    </rule>
+    <rule id="502916f">
+        <description>Created after removal of "Get all topics" from Docs CIS API</description>
+        <accepts>Get_all_topics2.html</accepts>
+    </rule>
+    <rule id="471281fd">
+        <description>Created after removal of "API Reference" from Docs CIS API</description>
+        <accepts>API_Reference3.html</accepts>
+    </rule>
+    <rule id="2cb60bad">
+        <description>Created after removal of "Schemas" from Docs CIS API</description>
+        <accepts>Schemas3.html</accepts>
+    </rule>
+    <rule id="7cd1b923">
+        <description>Created after removal of "ErrorResponse" from Docs CIS API</description>
+        <accepts>ErrorResponse2.html</accepts>
+    </rule>
+    <rule id="6959d988">
+        <description>Created after removal of "Error" from Docs CIS API</description>
+        <accepts>Error3.html</accepts>
+    </rule>
+    <rule id="40069179">
+        <description>Created after removal of "CreateTopicRequest" from Docs CIS API</description>
+        <accepts>CreateTopicRequest2.html</accepts>
+    </rule>
+    <rule id="4b9022ff">
+        <description>Created after removal of "Topic" from Docs CIS API</description>
+        <accepts>Topic3.html</accepts>
+    </rule>
+    <rule id="16dd14a7">
+        <description>Created after removal of "Idea" from Docs CIS API</description>
+        <accepts>Idea2.html</accepts>
+    </rule>
+    <rule id="360f4076">
+        <description>Created after removal of "NewIdea" from Docs CIS API</description>
+        <accepts>NewIdea2.html</accepts>
+    </rule>
+    <rule id="454008bf">
+        <description>Created after removal of "IdeaResponse" from Docs CIS API</description>
+        <accepts>IdeaResponse2.html</accepts>
+    </rule>
+    <rule id="6862bb2a">
+        <description>Created after removal of "IdeaRequest" from Docs CIS API</description>
+        <accepts>IdeaRequest2.html</accepts>
+    </rule>
+    <rule id="7760d681">
+        <description>Created after removal of "Get an Idea by ID" from Docs CIS API</description>
+        <accepts>Get_an_Idea_by_ID.html</accepts>
+    </rule>
+    <rule id="185fbc47">
+        <description>Created after removal of "Remove vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Remove_vote_for_Idea_by_ID2.html</accepts>
+    </rule>
+    <rule id="a37f18a">
+        <description>Created after removal of "Vote for Idea by ID" from Docs CIS API</description>
+        <accepts>Vote_for_Idea_by_ID2.html</accepts>
+    </rule>
+    <rule id="1f15dbe5">
+        <description>Created after removal of "Create a new idea for a topic" from Docs CIS API</description>
+        <accepts>Create_a_new_idea_for_a_topic2.html</accepts>
+    </rule>
+    <rule id="38cc3a11">
+        <description>Created after removal of "Get all ideas for a topic" from Docs CIS API</description>
+        <accepts>Get_all_ideas_for_a_topic.html</accepts>
+    </rule>
+    <rule id="10ec59aa">
+        <description>Created after removal of "Get a single topic by ID" from Docs CIS API</description>
+        <accepts>Get_a_single_topic_by_ID3.html</accepts>
+    </rule>
+    <rule id="60781365">
+        <description>Created after removal of "Get all topics" from Docs CIS API</description>
+        <accepts>Get_all_topics3.html</accepts>
+    </rule>
+    <rule id="4130509e">
+        <description>
+            <![CDATA[Created after removal of "02-Software Engineering Principles & Conventions" from Docs CIS API]]></description>
+        <accepts>02-software-engineering-principles.html</accepts>
+    </rule>
+    <rule id="dd8b698">
+        <description>Created after removal of "03-Requirements" from Docs CIS API</description>
+        <accepts>03-requirements.html</accepts>
+    </rule>
+    <rule id="1c502200">
+        <description>Created after removal of "04-User Stories" from Docs CIS API</description>
+        <accepts>04-user-stories.html</accepts>
+    </rule>
+    <rule id="380a12b6">
+        <description>Created after removal of "05-UML Diagrams" from Docs CIS API</description>
+        <accepts>05-uml-diagrams.html</accepts>
+    </rule>
+    <rule id="484accd5">
+        <description>Created after removal of "06-Architecture Overview" from Docs CIS API</description>
+        <accepts>06-architecture-overview.html</accepts>
+    </rule>
+    <rule id="67650584">
+        <description>Created after removal of "07-Getting Started with CIS API" from Docs CIS API</description>
+        <accepts>07-getting-started.html</accepts>
+    </rule>
+    <rule id="394b2fed">
+        <description>Created after removal of "08-API Reference (Endpoints)" from Docs CIS API</description>
+        <accepts>08-api-reference.html</accepts>
+    </rule>
+    <rule id="2a11028">
+        <description>Created after removal of "09-Authentication and Authorization" from Docs CIS API</description>
+        <accepts>09-authentication-authorization.html</accepts>
+    </rule>
+    <rule id="6bd56d17">
+        <description>Created after removal of "10-Data Models (Schemas)" from Docs CIS API</description>
+        <accepts>10-data-models.html</accepts>
+    </rule>
+    <rule id="6f0c2ecf">
+        <description>Created after removal of "11-Error Handling" from Docs CIS API</description>
+        <accepts>11-error-handling.html</accepts>
+    </rule>
+    <rule id="6b0c675c">
+        <description>Created after removal of "12-Testing the CIS API" from Docs CIS API</description>
+        <accepts>12-testing-cis-api.html</accepts>
+    </rule>
+    <rule id="df8dbc8">
+        <description>Created after removal of "13-Continuous Integration/Continuous Deployment (CI/CD)" from Docs CIS
+            API
+        </description>
+        <accepts>13-ci-cd.html</accepts>
+    </rule>
+    <rule id="200a21e5">
+        <description>Created after removal of "14-Deployment" from Docs CIS API</description>
+        <accepts>14-deployment.html</accepts>
+    </rule>
+    <rule id="404df79d">
+        <description>Created after removal of "15-Troubleshooting" from Docs CIS API</description>
+        <accepts>15-troubleshooting.html</accepts>
+    </rule>
+    <rule id="77a4e1d3">
+        <description>Created after removal of "16-Contributing to CIS API" from Docs CIS API</description>
+        <accepts>16-contributing.html</accepts>
+    </rule>
+    <rule id="3a0cc668">
+        <description>Created after removal of "17-Architecture Decision Records (ADRs)" from Docs CIS API</description>
+        <accepts>17-architecture-decision-records.html</accepts>
+    </rule>
+    <rule id="30669627">
+        <description>Created after removal of "C4 Model for the CIS API" from Docs CIS API</description>
+        <accepts>18-c4-model.html</accepts>
+    </rule>
+</rules>

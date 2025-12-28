@@ -1,0 +1,29 @@
+<svg width="400" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Radial gradient for the black hole - very dark blue/black center -->
+    <radialGradient id="blackHoleGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#0a0a1a" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+
+    <!-- Filter for the aura - now a dark teal/cyan glow -->
+    <filter id="auraFilter" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+      <feFlood flood-color="#003333" flood-opacity="0.8" result="color" /> <!-- Changed from #6a006a -->
+      <feComposite in="color" in2="blur" operator="in" result="glow" />
+      <feMerge>
+        <feMergeNode in="glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Event Horizon (slightly larger circle with aura) - dark teal -->
+  <circle cx="50" cy="50" r="35" fill="#0a2a2a" filter="url(#auraFilter)" />
+
+  <!-- Black Hole -->
+  <circle cx="50" cy="50" r="30" fill="url(#blackHoleGradient)" />
+
+  <!-- Electric blue horizontal cut in the middle of the black hole -->
+  <line x1="30" y1="50" x2="70" y2="50" stroke="#00ffff" stroke-width="3" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,288 @@
+openapi: 3.1.0
+
+info:
+  title: Users API
+  description: A simple and clean API to manage users, providing operations to create, read, update, and delete users.
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:8080'
+    description: Local development server
+
+tags:
+  - name: Users
+    description: Operations about users
+
+security:
+  - basicAuth: []
+
+paths:
+  /api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: Get a list of all users
+      description: Retrieves a complete list of all registered users in the system. This endpoint is useful for administrative purposes or for displaying all users in a user management interface.
+      responses:
+        '200':
+          $ref: '#/components/responses/UserListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Create a new user in the system
+      operationId: createUser
+      requestBody:
+        description: Create a new user in the system
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateDto'
+            example:
+              name: javier
+              login: jroca
+              password: pass123
+      responses:
+        '201':
+          $ref: '#/components/responses/UserResponseSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        default:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get a user by ID
+      description: Retrieves a single user by their unique ID.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponseSuccess'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Users
+      summary: Delete a specific user
+      description: Permanently deletes a user from the system based on their unique `id`. This action is irreversible. Ensure the user `id` is correct before making the request.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User deleted successfully.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - Users
+      summary: Update a user's information
+      description: Updates one or more fields for a specific user.
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        description: Fields to update in the user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateDto"
+            examples:
+              UpdateName:
+                value:
+                  name: javier2
+              UpdateLogin:
+                summary: Update user login
+                value:
+                  login: jroca2
+              UpdatePassword:
+                summary: Update user password
+                value:
+                  password: NewSecurePassword123!
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponseSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    UserUpdateDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          example: javier2
+        login:
+          type: string
+          minLength: 3
+          example: jroca2
+        password:
+          type: string
+          minLength: 8
+          example: NewSecurePassword123!
+    UserCreateDto:
+      type: object
+      required:
+        - name
+        - login
+        - password
+      properties:
+        name:
+          type: string
+          example: javier
+        login:
+          type: string
+          example: jroca
+        password:
+          type: string
+          example: pass123
+    UserResponseDto:
+      type: object
+      required:
+        - id
+        - name
+        - login
+      properties:
+        id:
+          type: string
+          example: 4e542f0d-f9ff-47c3-88e2-90f6e82b0ac9
+        name:
+          type: string
+          example: javier
+        login:
+          type: string
+          example: jroca
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: Unique user identifier.
+      schema:
+        type: string
+
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "UNAUTHORIZED"
+            message: "Authentication is required to access this resource."
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "BAD_REQUEST"
+            message: "Invalid input provided."
+    NotFoundError:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "NOT_FOUND"
+            message: "Resource not found."
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "INTERNAL_SERVER_ERROR"
+            message: "An unexpected error occurred."
+    UnprocessableEntityError:
+      description: Validation exception
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "UNPROCESSABLE_ENTITY"
+            message: "Validation failed for one or more fields."
+
+    UserListResponse:
+      description: A list of users.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/UserResponseDto'
+          example:
+            - id: "4e542f0d-f9ff-47c3-88e2-90f6e82b0ac9"
+              name: javier
+              login: jroca
+            - id: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+              name: juan
+              login: jperez
+    UserResponseSuccess:
+      description: User operation successful.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserResponseDto'
+          example:
+            id: 4e542f0d-f9ff-47c3-88e2-90f6e82b0ac9
+            name: javier
+            login: jroca
+    NoContentResponse:
+      description: No content.
+
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
